@@ -4,6 +4,7 @@ services:
     image: mysql:5.7
     ports:
       - "3306:3306" # <-これがないと外からアクセス出来ない
+    container_name: pubz-db-dev
     hostname: db
     environment:
       MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
@@ -27,12 +28,15 @@ services:
   django:
     build: ./docker/django
     # command: python /code/app/manage.py runserver 0.0.0.0:8000
-    hostname: django
+    container_name: pubz-web-dev
+    hostname: pubz-web-dev
+    # hostname: django
     environment:
       MYSQL_DATABASE: $MYSQL_ROOT_PASSWORD
       MYSQL_USER:     $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
       MYSQL_HOST:     db
+      # VIRTUAL_HOST: 'app.www-mmde.ist.osaka-u.ac.jp'
     volumes:
       - ./src:/code
       - ./docs:/root/docs
@@ -51,3 +55,9 @@ volumes:
       type: none
       device: $PWD/storage/db/data/
       o: bind
+
+
+networks:
+  default:
+    external:
+      name: shared

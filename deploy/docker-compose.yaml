@@ -4,33 +4,42 @@ services:
     image: mysql:5.7
     ports:
       - "3306:3306"
-    hostname: db
+    container_name: pubz-db-prd
+    hostname: pubz-db-prd
     environment:
       MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
       MYSQL_DATABASE: $MYSQL_DATABASE
       MYSQL_USER:     $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
     volumes:
-      - storage:/var/lib/mysql
+      - storage-prd:/var/lib/mysql
       - ../docker/mysql:/etc/mysql/conf.d
   web:
     build: ./django-uwsgi-nginx
+    container_name: pubz-web-prd
+    hostname: pubz-web-prd
     environment:
       MYSQL_DATABASE: $MYSQL_ROOT_PASSWORD
       MYSQL_USER:     $MYSQL_USER
       MYSQL_PASSWORD: $MYSQL_PASSWORD
-      MYSQL_HOST:     db
+      MYSQL_HOST:     pubz-db-prd
     volumes:
       - ../src:/code/app
     ports:
-      - '8080:8080'
+      - '8000:8000'
     depends_on:
       - db
 
 volumes:
-  storage:
+  storage-prd:
     driver: local
     driver_opts:
       type: none
       device: $PWD/../storage/db/data/
       o: bind
+
+
+networks:
+  default:
+    external:
+      name: shared
